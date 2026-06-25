@@ -138,6 +138,18 @@ body{font-family:"Segoe UI","Microsoft YaHei",serif;background:#0a0612;color:#d4
   <p>感情 · 事业 · 财富 · 运势 · 星座 · 元素 · 时间 · 方位 · 地点 · 城市 — 正逆位全维度解析</p>
 </div>
 
+<noscript>
+<div style="background:#5b1a1a;color:#fff;text-align:center;padding:14px;font-size:0.95em">
+⚠️ JavaScript未启用，工具无法运行。请使用公开网址：<br>
+👉 <a href="https://jiangzijie66-afk.github.io/tarot-reading-tool/" style="color:#ffd700;font-weight:bold">jiangzijie66-afk.github.io/tarot-reading-tool/</a>
+</div>
+</noscript>
+
+<div id="mobileBanner" style="display:none;background:#2d1550;color:#e0d0f0;text-align:center;padding:12px 16px;font-size:0.85em;border-bottom:1px solid #5b3da0">
+📱 如按钮无响应，请用浏览器打开公开网址获得完整体验：<br>
+👉 <a href="https://jiangzijie66-afk.github.io/tarot-reading-tool/" style="color:#f0d78c;font-weight:bold">jiangzijie66-afk.github.io/tarot-reading-tool/</a>
+</div>
+
 <div class="container">
   <div class="control-bar">
     <button class="btn btn-add" onclick="addCardSlot()">✨ 添加抽牌</button>
@@ -406,25 +418,76 @@ function addCardSlot(posLabel,fromSpread){
   var slot = document.createElement("div");
   slot.className="card-slot";
   slot.id="slot-"+idx;
-
   var posVal = posLabel || "";
-  var html='<div class="slot-header">';
-  html+='<div class="slot-num">'+idx+'</div>';
-  html+='<div class="slot-pos"><input type="text" placeholder="牌阵位置（如：过去、现在、未来）" value="'+posVal+'" oninput="updateSlotState('+idx+')"></div>';
-  html+='<button class="btn-remove" onclick="removeSlot('+idx+')" title="移除">✕</button>';
-  html+='</div><div class="slot-body">';
-  html+='<div class="slot-row"><label>牌名</label><div class="custom-select" id="select-'+idx+'">';
-  html+='<input type="text" placeholder="🔍 搜索或选择牌名..." autocomplete="off" onfocus="showDropdown('+idx+')" oninput="filterDropdown('+idx+')" >';
-  html+='<ul class="dropdown" id="dropdown-'+idx+'"></ul></div></div>';
-  html+='<div class="slot-row"><label>方位</label><div class="toggle-group">';
-  html+='<button class="toggle-btn active" ontouchstart="" onclick="setDirection('+idx+',this,\'up\')">正位 ▲</button>';
-  html+='<button class="toggle-btn" ontouchstart="" onclick="setDirection('+idx+',this,\'rev\')">逆位 ▼</button>';
-  html+='</div></div><div class="result-panel" id="result-'+idx+'"></div></div>';
 
-  slot.innerHTML=html;
+  // Build DOM directly (more reliable on mobile than innerHTML with onclick)
+  var header = document.createElement("div"); header.className="slot-header";
+  var numDiv = document.createElement("div"); numDiv.className="slot-num"; numDiv.textContent = idx;
+  var posDiv = document.createElement("div"); posDiv.className="slot-pos";
+  var posInput = document.createElement("input"); posInput.type="text"; posInput.placeholder="牌阵位置"; posInput.value=posVal;
+  posInput.addEventListener("input",function(){updateSlotState(idx);});
+  posDiv.appendChild(posInput);
+  var rmBtn = document.createElement("button"); rmBtn.className="btn-remove"; rmBtn.textContent="✕"; rmBtn.title="移除";
+  rmBtn.addEventListener("click",function(){removeSlot(idx);});
+  header.appendChild(numDiv); header.appendChild(posDiv); header.appendChild(rmBtn);
+
+  var body = document.createElement("div"); body.className="slot-body";
+  var row1 = document.createElement("div"); row1.className="slot-row";
+  var label1 = document.createElement("label"); label1.textContent="牌名";
+  var csDiv = document.createElement("div"); csDiv.className="custom-select"; csDiv.id="select-"+idx;
+  var searchInput = document.createElement("input"); searchInput.type="text"; searchInput.placeholder="🔍 搜索或选择牌名..."; searchInput.autocomplete="off";
+  searchInput.addEventListener("focus",function(){showDropdown(idx);});
+  searchInput.addEventListener("input",function(){filterDropdown(idx);});
+  var dropdownUl = document.createElement("ul"); dropdownUl.className="dropdown"; dropdownUl.id="dropdown-"+idx;
+  csDiv.appendChild(searchInput); csDiv.appendChild(dropdownUl);
+  row1.appendChild(label1); row1.appendChild(csDiv);
+
+  var row2 = document.createElement("div"); row2.className="slot-row";
+  var label2 = document.createElement("label"); label2.textContent="方位";
+  var tgDiv = document.createElement("div"); tgDiv.className="toggle-group";
+  var upBtn = document.createElement("button"); upBtn.className="toggle-btn active"; upBtn.textContent="正位 ▲";
+  upBtn.addEventListener("click",function(){setDirectionEl(this,idx,"up");});
+  upBtn.addEventListener("touchend",function(e){e.preventDefault();setDirectionEl(this,idx,"up");});
+  var revBtn = document.createElement("button"); revBtn.className="toggle-btn"; revBtn.textContent="逆位 ▼";
+  revBtn.addEventListener("click",function(){setDirectionEl(this,idx,"rev");});
+  revBtn.addEventListener("touchend",function(e){e.preventDefault();setDirectionEl(this,idx,"rev");});
+  tgDiv.appendChild(upBtn); tgDiv.appendChild(revBtn);
+  row2.appendChild(label2); row2.appendChild(tgDiv);
+
+  var resultPanel = document.createElement("div"); resultPanel.className="result-panel"; resultPanel.id="result-"+idx;
+
+  body.appendChild(row1); body.appendChild(row2); body.appendChild(resultPanel);
+  slot.appendChild(header); slot.appendChild(body);
   spreadArea.appendChild(slot);
-  initDropdown(idx);
+  initDropdownDOM(idx);
   updateSlotState(idx);
+}
+
+// Helper for direction toggle (replaces inline setDirection)
+function setDirectionEl(btn,idx,dir){
+  var slot=document.getElementById("slot-"+idx);
+  if(!slot) return;
+  var btns=slot.querySelectorAll(".toggle-btn");
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove("active");
+  btn.classList.add("active");
+  updateSlotState(idx);
+}
+
+// Build dropdown with DOM (no innerHTML for list items)
+function initDropdownDOM(idx){
+  var ul=document.getElementById("dropdown-"+idx);
+  if(!ul) return;
+  ul.innerHTML="";
+  for(var i=0;i<C.length;i++){
+    var li=document.createElement("li");
+    li.textContent=C[i][1];
+    li.setAttribute("data-val",C[i][1]);
+    (function(cardIdx,slotIdx){
+      li.addEventListener("click",function(){selectCard(slotIdx,this);});
+      li.addEventListener("touchend",function(e){e.preventDefault();selectCard(slotIdx,this);});
+    })(i,idx);
+    ul.appendChild(li);
+  }
 }
 
 // ===== DROPDOWN =====
@@ -600,8 +663,48 @@ document.addEventListener("keydown",function(e){
   }
 });
 
+// ===== ATTACH CONTROL BUTTONS (bypass inline onclick for mobile) =====
+(function(){
+  var addBtn = document.querySelector(".btn-add");
+  if(addBtn) { addBtn.addEventListener("click",function(){addCardSlot();}); addBtn.addEventListener("touchend",function(e){e.preventDefault();addCardSlot();}); }
+  var dbBtn = document.getElementById("btnDb");
+  if(dbBtn) { dbBtn.addEventListener("click",function(){toggleDatabase();}); dbBtn.addEventListener("touchend",function(e){e.preventDefault();toggleDatabase();}); }
+  var clearBtn = document.querySelector(".btn-clear");
+  if(clearBtn) { clearBtn.addEventListener("click",function(){clearAll();}); clearBtn.addEventListener("touchend",function(e){e.preventDefault();clearAll();}); }
+  var spreadSel = document.querySelector(".spread-select");
+  if(spreadSel) { spreadSel.addEventListener("change",function(){quickSpread(this.value);}); }
+  var modalClose = document.querySelector(".modal-close");
+  if(modalClose) { modalClose.addEventListener("click",function(){toggleDatabase();}); modalClose.addEventListener("touchend",function(e){e.preventDefault();toggleDatabase();}); }
+})();
+
+// Strip inline onclick handlers that may fail on mobile, rely on JS listeners
+(function(){
+  var btns = document.querySelectorAll("[onclick]");
+  for(var i=0;i<btns.length;i++) btns[i].removeAttribute("onclick");
+  // Add programmatic overlay click
+  var overlay = document.getElementById("modalOverlay");
+  if(overlay) overlay.addEventListener("click",function(e){if(e.target===this||e.target===this.firstChild)toggleDatabase();});
+})();
+
 // ===== INIT =====
-addCardSlot("整体运势",true);
+(function(){
+  var initOk = true;
+  // Mobile detection: test if innerHTML + onclick work
+  try {
+    var t = document.createElement("div"); t.style.display="none";
+    t.innerHTML = '<button onclick="void(0)">x</button>';
+    spreadArea.appendChild(t);
+    var tb = t.querySelector("button");
+    if(!tb){ initOk = false; }
+    else { var c=false; tb.onclick=function(){c=true;}; tb.click(); if(!c) initOk = false; }
+    t.remove();
+  } catch(e) { initOk = false; }
+  if(!initOk){
+    var mb = document.getElementById("mobileBanner");
+    if(mb) mb.style.display = "block";
+  }
+  try { addCardSlot("整体运势",true); } catch(e) {}
+})();
 document.addEventListener("click",function(e){
   if(!e.target.closest(".custom-select")){
     var all=document.querySelectorAll(".dropdown.show");
