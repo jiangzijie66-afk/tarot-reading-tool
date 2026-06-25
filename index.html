@@ -1,0 +1,508 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔮 塔罗牌78张完整解读工具</title>
+<style>
+/* === RESET & BASE === */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI","Microsoft YaHei",serif;background:#0a0612;color:#d4c8e8;min-height:100vh;overflow-x:hidden}
+/* === MYSTICAL BG === */
+.cosmos{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-2;background:radial-gradient(ellipse at 50% 20%,#1a0f30 0%,#0d0820 40%,#060312 100%)}
+.stars{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d) ease-in-out infinite;animation-delay:var(--delay);opacity:0}
+.star.bright{box-shadow:0 0 6px 2px rgba(200,170,255,0.6)}
+@keyframes twinkle{0%,100%{opacity:0.15}50%{opacity:0.8}}
+/* === MAGIC CIRCLE === */
+.magic-circle{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border:2px solid rgba(139,92,246,0.06);border-radius:50%;z-index:-1;pointer-events:none}
+.magic-circle::before{content:"";position:absolute;top:10%;left:10%;width:80%;height:80%;border:1px solid rgba(200,150,108,0.05);border-radius:50%}
+.magic-circle::after{content:"✦";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3em;color:rgba(200,150,108,0.04)}
+/* === CRYSTAL GLOW === */
+.crystal{position:fixed;pointer-events:none;z-index:-1}
+.crystal::before{content:"💎";font-size:2em;position:absolute;opacity:0.08;animation:floatCrystal 8s ease-in-out infinite}
+.crystal.c1{top:10%;left:5%}
+.crystal.c2{top:75%;right:8%;animation-delay:-3s}
+.crystal.c3{top:40%;left:92%}
+@keyframes floatCrystal{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+/* === CANDLE === */
+.candle{position:fixed;pointer-events:none;z-index:-1}
+.candle::before{content:"🕯️";font-size:1.8em;position:absolute;opacity:0.07;animation:flicker 3s ease-in-out infinite}
+.candle.l{top:15%;left:3%}
+.candle.r{top:20%;right:3%;animation-delay:-1.5s}
+@keyframes flicker{0%,100%{opacity:0.05}30%{opacity:0.1}60%{opacity:0.04}80%{opacity:0.09}}
+/* === HEADER === */
+.header{text-align:center;padding:32px 20px 24px;background:linear-gradient(180deg,rgba(30,15,55,0.97) 0%,rgba(10,6,18,0.97) 100%);border-bottom:1px solid #2d1850;position:sticky;top:0;z-index:100}
+.header h1{font-size:2.2em;background:linear-gradient(135deg,#d4a574 0%,#f0d78c 30%,#c8966c 60%,#e8c878 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;letter-spacing:2px}
+.header p{color:#6a5a9a;font-size:0.9em;letter-spacing:1px}
+.header::after{content:"";display:block;width:200px;height:1px;background:linear-gradient(90deg,transparent,#8b5cf6,transparent);margin:12px auto 0}
+/* === CONTAINER === */
+.container{max-width:1300px;margin:0 auto;padding:24px 20px}
+/* === CONTROL BAR === */
+.control-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:28px;padding:18px 20px;background:rgba(20,10,40,0.85);border-radius:16px;border:1px solid #2d1850;box-shadow:0 4px 30px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.02)}
+.btn{padding:11px 24px;border:none;border-radius:8px;cursor:pointer;font-size:0.95em;font-weight:600;transition:all 0.25s;letter-spacing:0.5px;position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);transition:left 0.5s}
+.btn:hover::after{left:100%}
+.btn-add{background:linear-gradient(135deg,#5b2db5,#7c3aed);color:#fff;box-shadow:0 2px 12px rgba(107,63,181,0.3)}
+.btn-add:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(107,63,181,0.45)}
+.btn-clear{background:transparent;color:#7a6aaa;border:1px solid #3d2570}
+.btn-clear:hover{background:rgba(255,255,255,0.03);color:#a090c8}
+.btn-db{background:transparent;color:#c8966c;border:1px solid #4d3020}
+.btn-db:hover{background:rgba(200,150,108,0.08)}
+.btn-db.active{background:rgba(200,150,108,0.15);border-color:#c8966c}
+.spread-select{background:#100828;color:#c8b8e8;border:1px solid #3d2570;border-radius:8px;padding:11px 16px;font-size:0.9em;cursor:pointer;margin-left:auto;outline:none}
+.spread-select:focus{border-color:#7c3aed}
+.spread-select option{background:#1a0f30;color:#d4c8e8}
+/* === SPREAD AREA === */
+.spread-area{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin-bottom:24px;min-height:120px}
+.empty-hint{color:#3d2570;text-align:center;padding:60px 20px;font-size:1.15em;width:100%}
+.empty-hint::before{content:"🌙";display:block;font-size:3em;margin-bottom:12px;opacity:0.3}
+/* === CARD SLOT === */
+.card-slot{width:380px;background:rgba(15,8,28,0.92);border-radius:16px;border:1px solid #2d1850;overflow:hidden;transition:all 0.35s;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.card-slot:hover{border-color:#5b3da0;box-shadow:0 6px 30px rgba(107,63,181,0.15)}
+.card-slot.filled{border-color:#7c3aed;box-shadow:0 4px 20px rgba(124,58,237,0.12)}
+.card-slot.filled .slot-header{background:rgba(124,58,237,0.12)}
+.slot-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(107,63,181,0.08);border-bottom:1px solid #1f1040;transition:background 0.3s}
+.slot-num{background:linear-gradient(135deg,#5b2db5,#7c3aed);color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;box-shadow:0 2px 8px rgba(107,63,181,0.3)}
+.slot-pos{flex:1}
+.slot-pos input{width:100%;background:transparent;border:1px solid transparent;color:#d4c8e8;font-size:0.9em;padding:5px 10px;border-radius:6px;transition:all 0.2s}
+.slot-pos input:focus{outline:none;border-color:#4a3080;background:rgba(0,0,0,0.25)}
+.slot-pos input::placeholder{color:#4a3575}
+.btn-remove{background:none;border:none;color:#4a3575;cursor:pointer;font-size:1.3em;padding:4px 8px;border-radius:6px;transition:all 0.2s;line-height:1}
+.btn-remove:hover{color:#e04060;background:rgba(224,64,96,0.12)}
+.slot-body{padding:16px 18px}
+.slot-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.slot-row:last-child{margin-bottom:0}
+.slot-row>label{font-size:0.8em;color:#6a5a9a;white-space:nowrap;min-width:38px;letter-spacing:0.5px}
+/* === CUSTOM SELECT === */
+.custom-select{position:relative;flex:1}
+.custom-select input{width:100%;padding:9px 14px;background:#100828;border:1px solid #2d1850;border-radius:8px;color:#d4c8e8;font-size:0.9em;cursor:pointer;transition:all 0.2s}
+.custom-select input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.1)}
+.custom-select .dropdown{display:none;position:absolute;top:100%;left:0;right:0;max-height:260px;overflow-y:auto;background:#120a28;border:1px solid #4a3080;border-radius:0 0 10px 10px;z-index:60;list-style:none;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+.custom-select .dropdown.show{display:block}
+.custom-select .dropdown li{padding:9px 14px;cursor:pointer;font-size:0.85em;border-bottom:1px solid #1a1030;transition:background 0.15s}
+.custom-select .dropdown li:hover{background:rgba(107,63,181,0.25);color:#e8d8f8}
+/* === TOGGLE === */
+.toggle-group{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid #2d1850}
+.toggle-btn{padding:8px 20px;border:none;cursor:pointer;font-size:0.85em;background:#100828;color:#5a4580;transition:all 0.25s;font-weight:500}
+.toggle-btn:first-child{border-right:1px solid #2d1850}
+.toggle-btn.active{background:linear-gradient(135deg,#5b2db5,#7c3aed);color:#fff}
+.toggle-btn:hover:not(.active){background:rgba(107,63,181,0.15);color:#8a70b8}
+/* === RESULT PANEL === */
+.result-panel{display:none;margin-top:12px;padding:16px;background:rgba(0,0,0,0.3);border-radius:12px;border:1px solid #1f1040}
+.result-panel.show{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.result-section{margin-bottom:12px}
+.result-section:last-child{margin-bottom:0}
+.result-section h5{font-size:0.73em;color:#c8966c;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+.result-section p{font-size:0.87em;color:#b0a0d0;line-height:1.55}
+.result-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid #1f1040}
+.meta-tag{display:inline-block;padding:4px 12px;border-radius:14px;font-size:0.73em;background:rgba(107,63,181,0.15);color:#b0a0d0;border:1px solid rgba(107,63,181,0.25);white-space:nowrap}
+/* === MODAL === */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#120a28;border-radius:16px;border:1px solid #3d2570;width:95%;max-width:1150px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+.modal-header{padding:18px 24px;border-bottom:1px solid #2d1850;display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:1.3em;background:linear-gradient(135deg,#d4a574,#f0d78c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.modal-close{background:none;border:1px solid #3d2570;color:#6a5a9a;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:0.9em;transition:all 0.2s}
+.modal-close:hover{background:rgba(255,255,255,0.04);color:#a090c8}
+.modal-search{padding:14px 24px;border-bottom:1px solid #1a1030}
+.modal-search input{width:100%;padding:11px 18px;background:#0a0612;border:1px solid #2d1850;border-radius:8px;color:#d4c8e8;font-size:0.95em;transition:all 0.2s}
+.modal-search input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.08)}
+.modal-body{flex:1;overflow-y:auto;padding:0 24px 20px}
+.db-table{width:100%;border-collapse:collapse;font-size:0.8em}
+.db-table th{position:sticky;top:0;background:#120a28;padding:10px 8px;text-align:left;border-bottom:2px solid #2d1850;color:#c8966c;white-space:nowrap;z-index:1}
+.db-table td{padding:8px;border-bottom:1px solid #140d28;color:#a898c8;vertical-align:top}
+.db-table tr:hover td{background:rgba(107,63,181,0.08)}
+.db-table .card-name{color:#d4c8e8;font-weight:600;white-space:nowrap}
+/* === FOOTER === */
+.footer{text-align:center;padding:20px;color:#3d2570;font-size:0.8em;border-top:1px solid #1a1030;margin-top:20px}
+.footer::before{content:"✧ ✦ ✧";display:block;letter-spacing:10px;margin-bottom:8px;font-size:0.9em;color:#4a3080}
+/* === RESPONSIVE === */
+@media(max-width:900px){.card-slot{width:100%}}
+@media(max-width:600px){.header h1{font-size:1.4em}.container{padding:12px}.control-bar{flex-direction:column;align-items:stretch}.spread-select{margin-left:0}.db-table{font-size:0.68em}.magic-circle{display:none}}
+</style>
+</head>
+<body>
+<!-- MYSTICAL BG ELEMENTS -->
+<div class="cosmos"></div>
+<div class="stars" id="starsContainer"></div>
+<div class="magic-circle"></div>
+<div class="crystal c1"></div>
+<div class="crystal c2"></div>
+<div class="candle l"></div>
+<div class="candle r"></div>
+
+<div class="header">
+  <h1>🔮 塔罗牌七十八张完整解读</h1>
+  <p>感情 · 事业 · 财富 · 运势 · 星座 · 元素 · 时间 · 方位 · 地点 · 城市 — 正逆位全维度解析</p>
+</div>
+
+<div class="container">
+  <div class="control-bar">
+    <button class="btn btn-add" onclick="addCardSlot()">✨ 添加抽牌</button>
+    <select class="spread-select" onchange="quickSpread(this.value)">
+      <option value="">📐 快速牌阵...</option>
+      <option value="1">🔮 单张牌</option>
+      <option value="3">⏳ 三张牌·时间之流</option>
+      <option value="4">🌿 四张牌·四元素</option>
+      <option value="5">✝ 凯尔特十字·十张</option>
+      <option value="7">📅 七张牌·一周运势</option>
+    </select>
+    <button class="btn btn-db" id="btnDb" onclick="toggleDatabase()">📚 卡牌数据库</button>
+    <button class="btn btn-clear" onclick="clearAll()">🗑 清空全部</button>
+  </div>
+  <div class="spread-area" id="spreadArea">
+    <div class="empty-hint" id="emptyHint">点击 ✨ 添加抽牌 开始你的塔罗解读之旅<br>或选择一个快速牌阵</div>
+  </div>
+</div>
+
+<div class="footer">78张塔罗牌完整解读工具 · 韦特-金色黎明体系</div>
+
+<!-- DATABASE MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)toggleDatabase()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📚 七十八张卡牌完整数据库</h2>
+      <button class="modal-close" onclick="toggleDatabase()">✕ 关闭</button>
+    </div>
+    <div class="modal-search">
+      <input type="text" id="dbSearch" placeholder="🔍 搜索牌名、星座、元素、关键词..." oninput="filterDatabase()">
+    </div>
+    <div class="modal-body">
+      <table class="db-table" id="dbTable">
+        <thead><tr><th>编号</th><th>牌名</th><th>组别</th><th>类型</th><th>星座/星体</th><th>元素</th><th>时间</th><th>方位</th><th>地点</th><th>城市</th><th>正位感情</th><th>逆位感情</th><th>正位事业</th><th>逆位事业</th><th>正位财富</th><th>逆位财富</th><th>正位运势</th><th>逆位运势</th></tr></thead>
+        <tbody id="dbBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STARFIELD GENERATOR =====
+(function(){
+  var sc = document.getElementById("starsContainer");
+  var html = "";
+  for(var i=0;i<80;i++){
+    var x=Math.random()*100;var y=Math.random()*100;
+    var s=Math.random()*2.5+0.8;var d=Math.random()*4+3;
+    var delay=Math.random()*5;var cls=Math.random()>0.7?"star bright":"star";
+    html+='<div class="'+cls+'" style="left:'+x+'%;top:'+y+'%;width:'+s+'px;height:'+s+'px;--d:'+d+'s;--delay:'+delay+'s"></div>';
+  }
+  sc.innerHTML=html;
+})();
+
+// ===== CARD DATABASE =====
+var C=[];
+function A(a){C.push(a);}
+
+// --- MAJOR ARCANA ---
+A(["0","愚者 The Fool","大阿尔克那","大牌","天王星♅","风🌪️","即时~3天","西","开阔地带、旅途路上、山顶、悬崖边、机场/车站","旧金山、阿姆斯特丹、加德满都","天真浪漫的爱，自由恋爱不拘传统，一见钟情，纯真的开始","忽冷忽热不稳定，感情不专一，内心空虚，缺乏承诺","冒险心强，追求新奇，适合自由职业/艺术/创意的全新开始","缺乏稳定性与责任感，成绩下滑，鲁莽决定","旅行中意外收获，以独特方式获取成功，大胆投资","不切实际的计划，盲目冒险导致损失，挥霍浪费","全新开始，机会来临，命运推动踏上旅程","运势低迷，错失良机，做事欠缺考虑"]);
+A(["1","魔术师 The Magician","大阿尔克那","大牌","水星☿","风🌪️","1~7天","东","工作室、办公室、实验室、商业区、演讲厅","伦敦、纽约、柏林","主动创造浪漫，善于表达爱意与魅力，积极沟通","花言巧语不够真诚，操纵感情，欺骗","新事务开始，技术纯熟贯彻意志，发挥全部潜能","意志薄弱走入错误方向，被同事欺骗，才能无法发挥","善用资源创造财富，新投资机会，第一桶金","知识不足导致被骗，投资判断失误，入不敷出","时机成熟，万事俱备，掌控局面","运势虚假繁荣，看似机会实则陷阱"]);
+A(["2","女祭司 The High Priestess","大阿尔克那","大牌","月亮☽","水💧","~28天（一个月圆周期）","西","安静的室内、图书馆、寺庙、密室、水边","威尼斯、京都、伊斯坦布尔","内心深处的灵魂连接，暗恋或精神恋爱，等待真爱","压抑情感与欲望，过度洁癖，隐藏真实动机","敏锐洞察力与直觉判断，适合研究/咨询/学术","目光短浅有勇无谋，判断严重偏差，同事间猜疑","凭借直觉做出正确选择，保守等待最佳时机","因贪心或无知导致损失，财务信息被隐瞒","暗中酝酿转机，静待直觉指引","运势不明朗，信息不足做决策"]);
+A(["3","女皇 The Empress","大阿尔克那","大牌","金星♀","土🪨","1~3个月","南","花园、田园、大自然、家中、美容院、艺术馆","巴黎、佛罗伦萨、维也纳","幸福圆满的家庭生活，收获爱情的果实，孕育新生命","缺乏上进心与热情，与家人纠纷，关系令人窒息","艺术类工作创造力旺盛，收获成果，得到上级赏识","散漫懒散无法看到成果，浪费才华","丰收富裕，物质环境优越，享受奢华生活","贪图享乐支出大增，入不敷出","运势鼎盛，收获的季节","运势衰退，挥霍过度"]);
+A(["4","皇帝 The Emperor","大阿尔克那","大牌","白羊座♈","火🔥","1~2个月","南","办公大楼、政府机关、军队驻地、总部办公室","华盛顿DC、伦敦、北京","可靠负责的伴侣，像父亲般守护对方，稳重承诺","霸道专制的控制狂，被支配感强，缺乏柔情","握有领导权，意志坚强达成目标，升职掌权","独裁固执不听从建议，缺乏纪律，权力斗争","通过纪律和掌控获得财富，财务稳固有序","行动力不足意志薄弱，财务管理混乱，权力滥用","运势强势，掌控全局的局面","运势来自强势施压，反面树敌"]);
+A(["5","教皇 The Hierophant","大阿尔克那","大牌","金牛座♉","土🪨","1~3个月","北","教堂、学校、银行、博物馆、传统机构","罗马/梵蒂冈、耶路撒冷、牛津","传统保守的感情观，走向婚姻殿堂，获得家族认可","叛逆不拘于传统，同居不婚，无视社会规范","遵守规则得到前辈指导，公务员/教育/宗教相关工作","创新突破不循规蹈矩，质疑权威","正规渠道稳定收入，银行/机构理财","错误建议导致损失，上当受骗","循规蹈矩而得好运，贵人相助","运势被框架限制，需打破常规"]);
+A(["6","恋人 The Lovers","大阿尔克那","大牌","双子座♊","风🌪️","1~2周","东","花园、公园、约会场所、婚礼场地、十字路口","巴黎、罗马、维罗纳","真爱结合，浪漫甜蜜的灵魂伴侣，命中注定的相遇","三角关系/婚外情，诱惑与背叛，争吵厌倦分离","面临重大抉择，合作关系良好，合伙人默契","错误选择，戒心太重导致合作困难","合作关系带来财富增长，共同投资成功","犹豫不决错失良机，合伙协议出现裂痕","关键转折点，正确选择带来好运","运势被错误选择所困，面临考验"]);
+A(["7","战车 The Chariot","大阿尔克那","大牌","巨蟹座♋","水💧","~1个月","西","路途之中、车辆上、竞技场、战场、旅行途中","东京、香港、纽约","控制好情绪使感情发展顺利，主动追求，征服对方","失去方向感，情绪失控，产生不信任与争执","努力获得成功，克服一切障碍，卓有成效","失败纠纷，违章违规被惩处，项目失控","坚持带来丰厚回报，凭借毅力战胜财务困难","突然失败导致财务损失，过于激进亏损","势如破竹的好运，战无不胜","运势急转直下，失控局面"]);
+A(["8","力量 Strength","大阿尔克那","大牌","狮子座♌","火🔥","1个月~1个季度","南","健身房、竞技场、野外、舞台、需要勇气的场所","罗马、马德里、孟买","全心投入亲密无间，以柔克刚化解矛盾","患得患失失去清醒判断，缺乏耐心引冲突","突破自我，获得上司与客户充分信赖，成为中流砥柱","胆小懦弱经不起诱惑，事业瓶颈无力突破","以智慧和内在力量获得财富，稳健持续","缺乏自信导致投资失误，被恐惧支配","运势来自内在力量和勇气","运势低迷，信心不足导致一切不顺"]);
+A(["9","隐者 The Hermit","大阿尔克那","大牌","处女座♍","土🪨","1~3个月","北","山林、静修处、图书馆、书房、寺庙、自然深处","京都、苏黎世、拉萨","深刻思考感情中的角色和地位，暂时独处以看清内心","冷漠逃避，关键时刻退缩不敢面对情感","黄金时期主动引退休息，为下一步储备知识与能量","过于慎重导致失败，不宜换工作，孤立无援","谨慎理财低调积累，不追求浮华","过度孤独导致判断偏差，失去投资机会","运势在沉寂中酝酿，静待时机","运势枯竭，过度隐退导致停滞"]);
+A(["10","命运之轮 Wheel of Fortune","大阿尔克那","大牌","木星♃","火🔥","3~12个月","中","赌场、轮盘旁、交通枢纽、命运的十字路口","拉斯维加斯、蒙特卡洛、澳门","风雨过境后感情进入稳定发展期，命运安排","时运不佳感情陷入恶性循环，分手边缘","状况好转，幸运之神降临，意外升职或机遇","挫折连连，计划泡汤，不可抗力的阻碍","先前付出终有回报，关键契机出现，偏财运好","无法修正方向的低迷期，持续亏损","命运之轮正向转动，好运降临","命运之轮逆向转动，诸事不顺"]);
+A(["11","正义 Justice","大阿尔克那","大牌","天秤座♎","风🌪️","1~3个月","东","法院、律师事务所、公证处、政府办公大厅","海牙、日内瓦、哥本哈根","感情和睦公平对待彼此，平等的爱，理性沟通","感情波折不平衡，互相指责推卸责任","诚实正直按计划认真执行，合同签订，法律事务顺利","独断专行关键时刻倒下，被不公平对待","正当收入合理分配，公平交易，法律保障","诉讼纠纷，不诚实交易，罚金罚款","因果报应，善有善报","运势受冤屈，不公待遇"]);
+A(["12","倒吊人 The Hanged Man","大阿尔克那","大牌","海王星♆","水💧","1~3个月（不确定）","西","冥想室、水中、医院等候区、被悬挂的过渡空间","瓦拉纳西、耶路撒冷、清迈","爱的牺牲给对方很大触动，等待与忍耐中看清真心","逃避爱情，没有结果的苦恋，不愿意付出","短暂停顿再次确认目标，以退为进的智慧","缺乏远见迷失目标，无谓牺牲陷僵局","有失必有得，长远布局，延迟满足","无谓的牺牲，不够努力导致财物损失","暂停是为了更好的出发","运势停滞，抗拒改变"]);
+A(["13","死神 Death","大阿尔克那","大牌","天蝎座♏","水💧","数月~1年","西","医院、废墟、改造中的空间、地下室","新奥尔良、庞贝、开罗","恋情终止或发生深刻变化，放下过去开始新阶段","逃避现实，与旧情人纠缠不清，拒绝分手","放弃旧有不再适合的利益，获得全新的发展方向","试图两全其美两头落空，拒绝必要改变","破旧立新，重建财务结构，旧的收入来源终止","重复消极模式，财务腐烂停滞不前","旧的不去新的不来，彻底转变","运势卡在旧模式中无法新生"]);
+A(["14","节制 Temperance","大阿尔克那","大牌","射手座♐","火🔥","~3个月","南","艺术工作室、瑜伽馆、温泉疗养地、静心之所","巴厘岛、哥本哈根、温哥华","单纯平静沟通顺畅，感情纯真调和，细水长流","配合度不佳距离拉大，争吵不和","处事理智同事放心，团队协作顺畅，流程优化","朝令夕改消耗疲劳，无法协调各方","互惠互利稳健增长，财务平衡有道","过度花费奢侈浪费，财务失衡","运势平稳顺畅，调和之象","运势起伏不定，失去平衡"]);
+A(["15","恶魔 The Devil","大阿尔克那","大牌","摩羯座♑","土🪨","6~12个月","北","夜店、赌场、地下室、阴暗诱惑之地、物质享受场所","拉斯维加斯、华尔街、迪拜","被彼此束缚的关系，隐秘恋情/外遇，toxic的执念","告别束缚拒绝诱惑，沟通加固，看清真相","以财富为目标获得事业成功，但不择手段","理性支配欲望，找到真正的职业目标","获得名声与财富但被欲望驱动，为钱所困","舍弃私欲解决债务问题，摆脱金钱的奴役","运势看似好实则被捆绑","运势解脱，从束缚中觉醒"]);
+A(["16","高塔 The Tower","大阿尔克那","大牌","火星♂","火🔥","瞬间~数天","南","高楼、塔楼、地震带、受灾现场、建筑工地","庞贝、东京、切尔诺贝利","突然分手/离婚，破灭的爱，无法挽回的破裂","爱情危机预感强烈，分离在即却试图维持","被解雇/破产，致命打击，计划全盘崩塌","危机趋于稳定但仍需警惕，被动改变","巨大变动导致财务危机，资产大幅缩水","背水一战做出让步以止损，缓慢恢复","天降灾变，猝不及防","运势危机中求存，谷底反弹"]);
+A(["17","星星 The Star","大阿尔克那","大牌","水瓶座♒","风🌪️","1~2年","东","星空下、水边、疗愈中心、温泉、艺术灵感之地","圣托里尼、雷克雅未克、旧金山","理想的对象，美好的恋情，命中注定的相遇","失望绝望，无法信任，单相思","前途光明，充满希望和创造力，迎来黄金期","好高骛远，事与愿违，方向迷失","愿望实现，意外之财，天降好运","情况悲观只能依靠自己，看不到希望","充满希望与好运，愿望成真","运势低迷，失望连连"]);
+A(["18","月亮 The Moon","大阿尔克那","大牌","双鱼座♓","水💧","1~3个月","西","水边、夜晚的野外、梦境之地、水下","威尼斯、圣彼得堡、马尔代夫","三角关系/暧昧不清，敏感害怕被伤害，逃避真实现状","正视爱情裂缝共同面对，逐渐看清真相","不满足于现状焦虑不安，渴望突破却看不清前路","外界压力使其退缩怀疑，但迷雾开始消散","欺骗、隐性陷阱、不稳定收入，信息不透明","解除误会状况逐渐好转，识破骗局","运势被迷雾笼罩，看不清真相","运势渐明，迷雾消散"]);
+A(["19","太阳 The Sun","大阿尔克那","大牌","太阳☉","火🔥","1~2个月","南","阳光充足之地、海滩、公园、游乐场、度假村","夏威夷、黄金海岸、巴塞罗那","走出坎坷规划未来，幸福婚姻，阳光爱情","感情有波动，怀疑对方付出真心","贵人相助，更好的发展机遇，登上巅峰","竞争心太急切吓跑伙伴，急于求成","精力充沛工作顺利，丰厚回报，财源广进","不够明朗，过度热情导致错误投资","最佳运势，一切顺利有活力","运势稍减但仍是正面的"]);
+A(["20","审判 Judgement","大阿尔克那","大牌","冥王星♇","火🔥","3~12个月","南","法庭、教堂、机场登机口、医院新生处、墓地（象征重生）","耶路撒冷、罗马、雅典","爱的奇迹重逢，认真成长，旧爱复合","貌合神离，拒绝正视问题，逃避内心召唤","超越自我，过去努力获得认可与成功","缺乏清晰判断无进展，害怕被审判","好消息，好运气初露锋芒，得到应有的回报","坏消息，用物质填充内心空虚","命运清算，好结果将至","运势被延迟，逃避清算"]);
+A(["21","世界 The World","大阿尔克那","大牌","土星♄","土🪨","6~12个月","中","机场国际航站楼、联合国、跨国总部、全球性地标","纽约、伦敦、迪拜","模范情侣，在承诺中持续美好，圆满的爱情","不再重视承诺，感情受挫，无法圆满","完美无缺完成使命，巅峰成就，荣誉加身","未完成半途而废，巨大障碍，功亏一篑","回报丰厚持续成功，财务自由的实现","精神颓废动力丧失，财务目标无法达成","完美圆满的好运，达成一切","运势差临门一脚，无法收尾"]);
+
+// --- WANDS ---
+A(["W1","权杖一 Ace of Wands","权杖","小牌","白羊座♈/火象整体","火🔥","1天~1个月","南","创新工场、创业孵化器、野外、运动场","硅谷、深圳、特拉维夫","新恋情的萌芽，电光火石般的吸引，激情的火花","延迟的开始，缺乏激情，热情消退","新项目启动的绝佳时机，灵感迸发，创业信号","项目延缓或取消，缺乏动力，创意枯竭","创意带来的财富机会，新的投资火种","财富机会被延误，投入缺乏回报","运势的新开端，能量充沛","运势停滞，能量被阻"]);
+A(["W2","权杖二 Two of Wands","权杖","小牌","白羊♈第一旬 3/21-3/30","火🔥","2天~2个月","南","机场出发厅、世界地图前、山顶眺望处","迪拜、新加坡、伦敦","规划未来方向，选择长远关系","糟糕计划导致犹豫，规避感情风险","职业选择的关键时刻，全球视野布局","害怕离开舒适区，错失发展机会","投资决策精准，战略性财富规划","错误投资计划，犹豫不决错失良机","运筹帷幄，以远见得胜","运势被犹豫拖累"]);
+A(["W3","权杖三 Three of Wands","权杖","小牌","白羊♈第二旬 3/31-4/9","火🔥","3天~3个月","南","港口、码头、机场跑道、海外办公室、船上眺望","上海、鹿特丹、新加坡","异地恋情开花结果，跨越距离的爱","限制与障碍导致感情延误，异地恋的挫折","海外业务发展，贸易扩张，大局规划成功","进出口问题，合作伙伴延迟交付","财富增长预期良好，海外投资回报","回流资金受阻，预期落空","运势广阔，前程似锦","运势受阻，预期难成"]);
+A(["W4","权杖四 Four of Wands","权杖","小牌","白羊♈第三旬 4/10-4/19","火🔥","4天~4个月","南","婚礼场地、新家、花园派对、社区广场","巴厘岛、普罗旺斯、佛罗伦萨","订婚/结婚/同居，安稳幸福的归宿感","家庭冲突，不稳定，延迟的婚礼","团队庆祝胜利，项目交付成功","职场不和谐，办公室政治纠纷","财务稳健，安居乐业的基础","家庭财务紧张，无法安居","运势稳定喜庆，值得庆祝","运势不稳定，乐极生悲"]);
+A(["W5","权杖五 Five of Wands","权杖","小牌","狮子♌第一旬 7/23-8/1","火🔥","5天~5个月","南","竞技场、运动场、辩论厅、拍卖行","华尔街、伦敦金融城、东京","争吵后和好，良性竞争增进感情","争吵升级为伤害，恶性竞争破坏关系","良性竞争激发潜力，团队辩论出佳方案","办公室恶性竞争，内耗严重","因竞争获利，竞价成功","因争执导致损失，竞标失败","运势在竞争中激发","运势被冲突消耗"]);
+A(["W6","权杖六 Six of Wands","权杖","小牌","狮子♌第二旬 8/2-8/11","火🔥","6天~6个月","南","颁奖台、主席台、游行队伍、庆功宴","好莱坞/洛杉矶、戛纳","受到赞美与认可，对方引以为傲的伴侣","缺乏成就不被认可，虚荣心作祟","升职加薪，年终表彰，行业奖项","失败不被注意，功劳被抢","成功后的财富奖励，收入提升","虚假繁荣，收入不如预期","运势大旺，凯旋而至","运势虚浮，无人喝彩"]);
+A(["W7","权杖七 Seven of Wands","权杖","小牌","狮子♌第三旬 8/12-8/22","火🔥","7天~7个月","南","高地上、防御性位置、辩论台前、竞争战场","马萨达、阿拉莫","守护感情抵挡外界干扰，为爱而战","放弃抵抗，投降妥协，缺乏自信","面对竞争者和挑战坚守阵地","被压力击垮，放弃斗争","守住已有财富不被侵蚀，捍卫资产","放弃财务防御，被抢占市场","运势在坚持中取胜","运势节节败退"]);
+A(["W8","权杖八 Eight of Wands","权杖","小牌","射手♐第一旬 11/23-12/2","火🔥","8天~8个月（最快）","南","机场跑道、高速公路上空、通信塔、快递中心","纽约、迪拜、东京","感情迅速发展，一见钟情后的快速推进","延误混乱，感情卡顿","项目快速推进，好消息纷至，效率巅峰","计划停滞，消息延误，团队失序","快速收益，短线投资成功，来钱快","资金卡住，回款延迟，仓促决策失误","运势飞速前进","运势被阻滞"]);
+A(["W9","权杖九 Nine of Wands","权杖","小牌","射手♐第二旬 12/3-12/12","火🔥","9天~9个月","南","防御工事前、最后的关卡处、堡垒、医院康复区","伦敦、马拉松、马耳他","感情经过考验临近圆满，最后的坚持","顽固不化拒绝妥协，死守不放","面临最后挑战即将成功，再接再厉","筋疲力尽无力继续，功亏一篑","即将收获前的最后等待，守得云开","防守过度错失增长机会","运势在最后一关考验中","运势被疲惫拖垮"]);
+A(["W10","权杖十 Ten of Wands","权杖","小牌","射手♐第三旬 12/13-12/21","火🔥","10天~10个月","南","加班办公室、搬货现场、背负过多的工作间","东京、香港、孟买","责任压垮感情，为爱背负太多","崩溃后放不下，感情成为包袱","工作过度负担过重，加班过多","不愿放手导致团队崩盘","财务负担重，还债压力大","过量投资被套牢，无法卸下","运势被重负所压","运势濒临崩溃"]);
+A(["WP","权杖侍者 Page of Wands","权杖","宫廷牌","全火象青年态","火之火","11天","南","学校、训练场、探险地、青年旅舍","巴塞罗那、迈阿密、黄金海岸","新的追求者出现，天真热情的示爱","不可靠的承诺，花心不专","新机会的电话/邮件，学习新技能","懒惰错失机会，心烦意乱","小额投资的开始，学习理财","冲动消费，投资被骗","运势新消息带来转机","运势被懒散耽误"]);
+A(["WN","权杖骑士 Knight of Wands","权杖","宫廷牌","射手座♐","火之火","12天","南偏西南","赛马场、飙车赛道、探险路线、竞技场","马德里、墨尔本、迪拜","热烈追求，激情似火的浪漫","鲁莽冲动导致感情破裂","积极行动冲向目标，说走就走的魄力","鲁莽不周，计划不足就行动","风险投资，机会主义获利","鲁莽投资导致大亏","运势如骑士冲锋","运势因急躁下降"]);
+A(["WQ","权杖皇后 Queen of Wands","权杖","宫廷牌","白羊座♈","火之水","13天~3个月","南偏东南","舞台、社交场合、阳光花园、艺术工作室","洛杉矶、米兰、巴黎","热情大方魅力四射的伴侣，自信独立的爱人","怨恨嫉妒喜怒无常，控制欲强","社交型领导者，充满魅力的团队核心","利用魅力操纵同事，职场忌妒","慷慨运用财富吸引更多资源","因嫉妒或不安全感而挥霍","运势旺盛充满魅力和吸引力","运势被负面情绪消耗"]);
+A(["WK","权杖国王 King of Wands","权杖","宫廷牌","狮子座♌","火之火","14天~3个月","南","CEO办公室、董事会会议室、总部大楼顶层","迪拜、上海、纽约","忠诚威严热烈如火的伴侣","暴君般的强势，让他人感到窒息","创业家领袖，大胆而有远见的上司","无效领导架空权力，霸道不讲理","掌控财富大格局，产业帝国版图","用财富控制他人，霸占资源","运势王者的掌控力","运势被独裁心态削弱"]);
+
+// --- CUPS ---
+A(["C1","圣杯一 Ace of Cups","圣杯","小牌","巨蟹座♋/水象整体","水💧","1个月","西","水边、喷泉旁、洗礼处、浪漫餐厅、家中","威尼斯、圣托里尼、普罗旺斯","新恋情的情感觉醒，爱的倾注，纯粹的爱的开始","冷漠空虚，感觉不被爱，情感干涸","创意灵感的涌泉，充满爱的工作方向","创意枯竭，对工作失去情感连接","情感满足远胜过物质财富，为爱付出","财务空虚，情感消费无法满足","运势被爱与情感充盈","运势枯竭，情感空虚"]);
+A(["C2","圣杯二 Two of Cups","圣杯","小牌","巨蟹♋第一旬 6/21-7/1","水💧","2个月","西","咖啡厅双人座、婚礼场所、蜜月套房","巴黎、维罗纳、罗马","真爱配对灵魂伴侣，双向奔赴的爱情","分离拒绝，沟通不良，分手边缘","深度合作伙伴关系，合伙人默契无双","合作失败，伙伴关系破裂","合伙共赢，共同投资回报丰厚","合伙人拆伙导致财务损失","运势因遇良缘而转好","运势因关系破裂而下降"]);
+A(["C3","圣杯三 Three of Cups","圣杯","小牌","巨蟹♋第二旬 7/2-7/11","水💧","3个月","西","派对、酒吧、闺蜜下午茶、女性聚会、餐厅","巴塞罗那、里约热内卢、曼谷","友情升华成爱情，三人相处快乐和谐","八卦传播，孤立排挤，过度社交","团队欢庆胜利，女性合作力强","职场小圈子，排斥他人","社交带来的机会，聚会上获贵人指引","过度聚会浪费金钱","运势在友谊和社交中提升","运势被小人八卦伤害"]);
+A(["C4","圣杯四 Four of Cups","圣杯","小牌","巨蟹♋第三旬 7/12-7/22","水💧","4个月","西","家中沙发、躺椅上、树下发呆处、冥想角落","哥本哈根、波特兰","关系倦怠期，对现状不满，需要新鲜感","清醒接受现状，选择幸福","工作倦怠无聊，渴望改变但不动手","重燃工作热情，看到新机遇","对已有财富不满足，总觉得不够","看清手头资源，感恩已有","运势在倦怠中沉睡","运势因醒悟而提升"]);
+A(["C5","圣杯五 Five of Cups","圣杯","小牌","天蝎♏第一旬 10/23-11/1","水💧","5个月","西","桥边、河岸、墓地（象征）、独处的房间","里斯本、布鲁日、威尼斯（冬）","伤心分手，为失去的感情哭泣","接受事实前行，找到内心的平静","工作失落，被解雇或被调离喜欢的岗位","接受失败重新站起来","财务损失心情沉重，投资亏损","从财务损失中恢复，看到剩下的两杯","运势陷入低谷悲伤","运势在悲伤中触底回升"]);
+A(["C6","圣杯六 Six of Cups","圣杯","小牌","天蝎♏第二旬 11/2-11/11","水💧","6个月","西","故居、母校、童年的公园、长辈家中","维也纳、布拉格、爱丁堡","旧情人重逢，童年玩伴的浪漫再续","困在过去无法独立，过度依赖","回到以前的工作或行业，重温初心","固守旧业不愿前行","过去的积蓄或投资现在兑现","钱被过去的事拴住","运势因怀旧而转好","运势被过去缠住"]);
+A(["C7","圣杯七 Seven of Cups","圣杯","小牌","天蝎♏第三旬 11/12-11/21","水💧","7个月","西","梦境之中、创意工作室、电影院、巧克力工厂","拉斯维加斯、洛桑、好莱坞","多重选择难以抉择，恋爱脑白日梦","清醒看到现实，做出明确选择","职业方向迷茫，太多选项反而无法决定","拨开迷雾，确定单一目标","投资幻想过多，不够脚踏实地","清醒回绝骗局，理性规划","运势在幻想中迷失","运势因清醒而明朗"]);
+A(["C8","圣杯八 Eight of Cups","圣杯","小牌","双鱼♓第一旬 2/19-2/29","水💧","8个月","西","水边离别处、渡口、出发的码头、朝圣之路","圣地亚哥朝圣之路、吴哥窟、恒河","勇敢离开不健康的关系，转身向内走","停滞不敢走，害怕改变","勇敢辞职追求更高理想","留在不满的岗位上不敢动","放弃不良投资项目，重新洗牌","死守亏损资产不愿割肉","运势在离开中重生","运势因不敢动而停滞"]);
+A(["C9","圣杯九 Nine of Cups","圣杯","小牌","双鱼♓第二旬 3/1-3/10","水💧","9个月","西","餐厅美食桌、舒适家中、奢侈品店、度假胜地","摩纳哥、苏黎世、哥本哈根","感情如愿以偿，找到理想伴侣","失望不满足，得了还想要更多","小有成就心满意足，坐享其成","成就不如预期，失望","财富满足感，物质和精神双丰收","永远不满足，贪得无厌","运势心想事成","运势因贪婪而败"]);
+A(["C10","圣杯十 Ten of Cups","圣杯","小牌","双鱼♓第三旬 3/11-3/20","水💧","10个月","西","家庭住宅、彩虹下、乡村家园、度假别墅","哥本哈根、墨尔本、温哥华","完美家庭，灵魂归宿，幸福婚姻的最高境界","家庭分离，冲突孤立，离婚","事业圆满退休，工作的情感价值实现","团队分崩离析，事业无法带来快乐","家庭财富，家族的繁荣昌盛","家庭财务纠纷，分家产","运势圆满幸福","运势被家庭问题拖累"]);
+A(["CP","圣杯侍者 Page of Cups","圣杯","宫廷牌","全水象少年态","水之土","11个月","西","湖边、海边、青少年俱乐部、创意教室","哥本哈根、剑桥、羊角村","纯真的初恋，天真的表白","逃避现实不成熟的爱","新创意灵感，学习艺术技能","不合实际的白日梦","小额创意收入","财务不切实际","运势带来灵性消息","运势不切实际"]);
+A(["CN","圣杯骑士 Knight of Cups","圣杯","宫廷牌","双鱼座♓","水之火","12个月/1年","西偏西北","画廊、音乐会、诗社、河畔、浪漫餐厅","维也纳、巴黎、威尼斯","浪漫温柔的恋人，写诗送花","情绪化虚荣，假浪漫真套路","艺术创造性工作，凭感觉做事","不切实际，幻想胜过实干","为梦想花钱，艺术投资","因虚荣过度消费","运势因浪漫而美好","运势因虚妄而失"]);
+A(["CQ","圣杯皇后 Queen of Cups","圣杯","宫廷牌","巨蟹座♋","水之水","13个月","西偏西南","水边疗愈地、心理咨询室、月子中心、茶室","巴厘岛、阿姆斯特丹、温哥华","温柔包容无条件爱人的伴侣","过于敏感依赖，殉道者心态","咨询师/治疗师/HR，以情感智慧工作","情绪绑架同事，过分依赖","慷慨分享财富，情感式付出","被情绪消费绑架","运势因慈悲而转好","运势因过度敏感而消耗"]);
+A(["CK","圣杯国王 King of Cups","圣杯","宫廷牌","天蝎座♏","水之风","14个月","西","海边办公室、仲裁庭、高级餐厅、慈善机构","日内瓦、维也纳、西雅图","情感成熟稳重的伴侣，包容而智慧","控制欲强，自私焦虑，情感勒索","权威顾问，情感智慧型领导","用情感控制下属","智慧理财，用情商积累财富","被情感支配的非理性消费","运势因情感成熟而稳健","运势因情感混乱而失控"]);
+
+// --- SWORDS ---
+A(["S1","宝剑一 Ace of Swords","宝剑","小牌","双子座♊/风象整体","风🌪️","1周","东","图书馆、会议室、法庭、谈判桌、电脑旁","剑桥、硅谷、柏林","理性分析感情，看清关系真相","沟通混乱，言语刻薄伤害对方","看清真相做出正确决策，突破思维困局","敌意竞争，思路混乱","清晰的财务规划，砍掉不必要支出","错误判断导致财务损失","运势在清晰思路中展开","运势因混乱而暗淡"]);
+A(["S2","宝剑二 Two of Swords","宝剑","小牌","天秤♎第一旬 9/23-10/2","风🌪️","2周","东","十字路口、选择岔口、法庭被告席","布鲁塞尔、日内瓦、耶路撒冷","感情选择的两难，在两个对象间徘徊","真相大白，犹豫消除了","职业十字路口，两难选择","焦虑导致的拖延决策","投资方向难以决策","不管好坏必须决策了","运势在进退两难中停滞","运势因被迫选择而前进"]);
+A(["S3","宝剑三 Three of Swords","宝剑","小牌","天秤♎第二旬 10/3-10/12","风🌪️","3周","东","医院的病床上、雨中的街道","维也纳、布鲁日、里斯本","失恋心碎，被背叛/欺骗/辜负","愈合原谅和解，伤口开始恢复","被团队排斥，被解雇或错失重要机会","从职场创伤中缓慢恢复","财务损失带来的深深痛苦","财务创伤的恢复期","运势陷入痛苦的谷底","运势开始从伤痛中恢复"]);
+A(["S4","宝剑四 Four of Swords","宝剑","小牌","天秤♎第三旬 10/13-10/22","风🌪️","4周/~1个月","东","卧室、度假屋、疗养院、寺庙静修房","巴厘岛乌布、清迈、冰岛蓝湖","感情暂停期，冷战休憩思考下一步","重新觉醒烦躁不安，休息结束","休假调整状态，必要的退一步","倦怠但不敢休息，被迫走出安逸","资金沉淀期，不操作的时候","被迫动用储备金","运势在休整中酝酿","运势在不安中躁动"]);
+A(["S5","宝剑五 Five of Swords","宝剑","小牌","水瓶♒第一旬 1/20-1/29","风🌪️","5周","东","战场（象征）、辩论台、律师楼、会议对峙室","华尔街、海牙、德里","伤人伤己的激烈争吵，赢了道理输了感情","和解妥协减少损失，放下争执","职场霸凌，恶性竞争，你死我活","冲突结束，愿意握手言和","因争执导致的财务损失，打官司费用","妥协减少损失","运势被冲突和敌对消耗","运势因和解而修复"]);
+A(["S6","宝剑六 Six of Swords","宝剑","小牌","水瓶♒第二旬 1/30-2/8","风🌪️","6周","东","船上、渡口、搬家途中、机场转机厅","悉尼、温哥华、新加坡","走出情伤，渡过低谷，带着伤痕前行","困在过去走不出去，重复同一种伤害","换工作/换行业，安静地过渡","赖在原职扛着不离开","财务过渡期，平稳从困难过渡到好转","困在财务困境中逃避","运势在过渡中平稳前行","运势卡在过去无法前进"]);
+A(["S7","宝剑七 Seven of Swords","宝剑","小牌","水瓶♒第三旬 2/9-2/18","风🌪️","7周","东","背后、暗处、黑客空间、情报处、赌场后厅","拉斯维加斯、伦敦、香港","隐藏秘密不忠诚，偷偷进行的恋情","忏悔真相大白，被发现的秘密","走捷径绕过规则，偷偷跳槽","不光明手段被暴露","投机取巧的财务手法","被发现后的悔恨，罚款","运势靠投机，暗藏风险","运势因真相暴露而受损"]);
+A(["S8","宝剑八 Eight of Swords","宝剑","小牌","双子♊第一旬 5/21-5/31","风🌪️","8周","东","封闭空间、监狱（象征性）、被困住身心的地方","阿尔卡特拉斯岛、西柏林（冷战时期）","被感情困住无法挣脱，自己给自己编的牢笼","自由释放，面对恐惧，解开束缚","职业瓶颈，感觉被环境捆绑","突破瓶颈，看到被困的布其实是松的","财务困局，现金断流，被债务捆绑","财务自由开始，摆脱债务束缚","运势陷入自我设限","运势突破困境"]);
+A(["S9","宝剑九 Nine of Swords","宝剑","小牌","双子♊第二旬 6/1-6/10","风🌪️","9周","东","失眠的床上、黑暗的房间、心理咨询室、凌晨的办公室","纽约、首尔、东京","极度焦虑不安，半夜做噩梦，猜疑恐惧","学会应对学习求助，看见曙光","职场压力大到失眠，恐惧失败","压力缓解，开始与人倾吐","财务焦虑极度严重，钱不够的噩梦","财务恐惧减缓，开始务实面对","运势被极度焦虑笼罩","运势因寻求帮助而好转"]);
+A(["S10","宝剑十 Ten of Swords","宝剑","小牌","双子♊第三旬 6/11-6/20","风🌪️","10周","东","废墟、破产清算处、荒芜之地、黎明前的黑暗","底特律、切尔诺贝利、冰岛（危机后重生）","彻底结束，无法挽回，十剑穿心","幸存下来，从最糟的经验中吸取教训","全面失败，被开除或公司倒闭","触底之后开始缓慢上升","财务全面崩溃，破产边缘","从最糟的经验中学会保护自己","运势触底","运势从最底点唯一的方向是上升"]);
+A(["SP","宝剑侍者 Page of Swords","宝剑","宫廷牌","全风象少年态","风之风","11周","东","学校、网吧、媒体中心、社交平台办公室","硅谷、班加罗尔、首尔","机灵健谈的追求者，社交媒体的调情","散漫八卦的碎嘴，网络上的情感诈骗","职场新人快速学习，侦察市场情报","粗鲁新人，散布流言","小聪明理财，追逐新信息获利","靠八卦和假消息投机","运势来自新知识和信息","运势因流言蜚语受损"]);
+A(["SN","宝剑骑士 Knight of Swords","宝剑","宫廷牌","双子座♊","风之风","12周/3个月","东偏东北","战车驾驶舱、飙风赛道、辩论擂台、紧急手术室","硅谷、纽约、伦敦金融城","雷厉风行的感情攻势，直接表白","霸道无情冷暴力，伤人话语如剑","快速决断者，在危机中果断出手","傲慢霸道伤及无辜","果敢的投资风格，凭精准判断赚钱","冲动决策亏损","运势如疾风般快速","运势因急躁而遭损"]);
+A(["SQ","宝剑皇后 Queen of Swords","宝剑","宫廷牌","天秤座♎","风之水","13周","东偏东南","法庭法官席、企业董事会、战略指挥室、独立办公室","苏黎世、日内瓦、新加坡","理性冷静的伴侣，独立不依赖","恶意刻薄残忍，利用言语伤人","客观中立的专业人士，战略性思维","冷酷无情裁人，利用职权打压","理智管理财务，精准规划","财务独立到拒绝合作","运势来自精准理性和判断","运势因过于冷酷而受损"]);
+A(["SK","宝剑国王 King of Swords","宝剑","宫廷牌","水瓶座♒","风之风","14周","东","最高法庭、军事指挥部、公司总部顶层、智库","海牙、柏林、东京","理智主导感情的伴侣，但可靠公正","独裁压迫冷酷，毫无温度","高层管理者，理性权威，军事化执行","冷酷领导，恐怖统治","严谨理财，精确到每一分钱","吝啬，用钱压迫控制","运势来自严谨秩序","运势因无情而损害"]);
+
+// --- PENTACLES ---
+A(["P1","钱币一 Ace of Pentacles","钱币","小牌","金牛座♉/土象整体","土🪨","1年/1季度","北","银行、地产公司、交易所、种植园、金库","苏黎世、纽约华尔街、伦敦金融城","稳定踏实的新关系，物质基础扎实的爱","错失良缘，不够踏实","新工作/新项目/升职加薪的种子","错失机会，工作不可靠","新投资收益的种子，财运来临","错误投资，财务机会溜走","运势种下一颗金种子","运势错过黄金机会"]);
+A(["P2","钱币二 Two of Pentacles","钱币","小牌","摩羯♑第一旬 12/22-12/31","土🪨","2年/2季度","北","证券交易所、仓库、调度中心、多人办公区","香港、伦敦、新加坡","感情与工作之间保持平衡，两边顾全","混乱不堪重负，感情失衡","兼职/多项目管理成功，应对自如","混乱超负荷，失去平衡","资金周转灵活，现金流管理卓越","失控的财务状况","运势在灵活应变中保持平衡","运势因失衡而下坠"]);
+A(["P3","钱币三 Three of Pentacles","钱币","小牌","摩羯♑第二旬 1/1-1/10","土🪨","3年/3季度","北","建筑工地、工坊、团队办公室、教室/培训中心","巴塞罗那、斯图加特、鹿特丹","共同经营感情，一起为未来打拼","缺乏凝聚力，各做各的","团队项目合作成功，技能被认可","团队不和，恶性竞争","合作带来收益，团队分红","合作分配不均","运势在团队协作中增长","运势因团队问题受损"]);
+A(["P4","钱币四 Four of Pentacles","钱币","小牌","摩羯♑第三旬 1/11-1/19","土🪨","4年/4季度","北","地下金库、家中保险柜、银行保险箱、紧闭的家","苏黎世、日内瓦、摩纳哥","感情上过于保守，不愿付出真心","开放心态，愿意分享情感","稳定但不愿改变，死守现有位置","无法守住位置，被迫放手","守财奴，过度储蓄，一毛不拔","慷慨过头，财务安全感缺失","运势被守财心态限制","运势因过度开放而流失"]);
+A(["P5","钱币五 Five of Pentacles","钱币","小牌","金牛♉第一旬 4/20-4/30","土🪨","5年/5季度","北","教堂门口（雪中）、收容所、失业登记处、贫民区","底特律、曼彻斯特（工业荒废）、雅典","在感情中感到被遗弃和孤独，贫贱夫妻百事哀","恢复与宽恕，开始被人接纳","失业或被职场孤立，裁员危机","找到新工作融入新团队","财务困难期，入不敷出","财务恢复期，援助来了","运势陷入贫乏困窘","运势从困窘中缓慢恢复"]);
+A(["P6","钱币六 Six of Pentacles","钱币","小牌","金牛♉第二旬 5/1-5/10","土🪨","6年/6季度","北","慈善机构、银行放贷处、法院财产分配处、社区中心","哥本哈根、奥斯陆、日内瓦","一方付出过多，但出于爱且平衡","不平等的关系，利用","获得帮助或帮助他人，导师关系","被敲诈或不公平薪资","借贷、理财援助、慈善捐款","债务陷阱，不平等交易","运势因慷慨而回馈","运势因不平等而受损"]);
+A(["P7","钱币七 Seven of Pentacles","钱币","小牌","金牛♉第三旬 5/11-5/20","土🪨","7年/7季度","北","果园、农田、长期投资项目地、实验室","波尔多、纳帕谷、托斯卡纳","感情需要时间酝酿，看长远发展","失去耐心，不成熟的关系","等待成果的时候，评估过往投入","等不及，频繁换工作","投资等待回报，长期的果实","等不及要收割未成熟果实","运势在耐心等待中酝酿","运势因急于求成而亏损"]);
+A(["P8","钱币八 Eight of Pentacles","钱币","小牌","处女♍第一旬 8/23-9/1","土🪨","8年/8季度","北","工坊、工作室、手艺人摊档、训练场","京都、瑞士钟表谷、佛罗伦萨","细水长流的感情，用心经营每一天","枯燥无聊，死胡同","专注工作精益求精，职人精神","平庸的重复，没有进步","手艺带来的稳定财富，工资持续增长","枯燥工作无法增加财富","运势在坚持专注中积累","运势因枯燥无味而停滞"]);
+A(["P9","钱币九 Nine of Pentacles","钱币","小牌","处女♍第二旬 9/2-9/11","土🪨","9年/9季度","北","自家庄园、花园、高级商场、度假村","巴黎、摩纳哥、温哥华","享受单身的富足与自由，有底气选择","入不敷出不计后果，浪费资源","独立事业成功，自给自足的成就感","不计成本的铺张浪费","财务自由享受成果，靠自己赚的钱","奢侈浪费，钱花在不该花的地方","运势丰盛，享受成果","运势被奢侈浪费消耗"]);
+A(["P10","钱币十 Ten of Pentacles","钱币","小牌","处女♍第三旬 9/12-9/22","土🪨","10年/10季度","北","祖宅、家族庄园、祠堂、养老院、家族企业总部","爱丁堡、京都、佛罗伦萨美第奇","世代传承的家族之爱，祖宗认可的婚姻","家庭纠纷，分家产的争执","家族企业永续经营，百年老店","家族企业倒闭，继承人不合格","继承财富，财务巅峰，家族信托","破产/债务传承","运势来自家族力量","运势被家庭问题拖累"]);
+A(["PP","钱币侍者 Page of Pentacles","钱币","宫廷牌","全土象少年态","土之土","11年/11季度","北","校园、图书馆、培训室、实习办公室","牛津、波士顿、海德堡","学习如何去爱，踏实的恋爱观","懒惰不成熟，不敢去爱","学徒/实习生，学习新技能新岗位","错失学习机会","学习理财投资，股票入门的学费","理财知识匮乏乱投资","运势在学习中积累","运势因懒惰而延迟"]);
+A(["PN","钱币骑士 Knight of Pentacles","钱币","宫廷牌","处女座♍","土之风","12年/12季度","北偏西北","农田、工地、银行柜台、政府机关","苏黎世、慕尼黑、渥太华","踏实稳重最可靠的伴侣，慢慢推进","工作狂不懂浪漫不负责任","最可靠的工作者，交给他不会出错","顽固保守不创新","稳健投资风格，慢慢变富","赌徒心态急躁亏钱","运势缓慢但稳健上升","运势因守旧而停滞"]);
+A(["PQ","钱币皇后 Queen of Pentacles","钱币","宫廷牌","摩羯座♑","土之水","13年/13季度","北偏东北","温馨的家、花园厨房、农贸市场、家政服务中心","哥本哈根、维也纳、普罗旺斯","贤惠温暖的伴侣，家是最好的港湾","放纵嫉妒贪婪，对家人控制","关爱员工富有人情味的管理者","对下属过分控制","善于持家理财，滋养型财富","因放纵贪婪消费过度","运势因温暖务实而稳定","运势因贪婪和放纵而流失"]);
+A(["PK","钱币国王 King of Pentacles","钱币","宫廷牌","金牛座♉","土之土+火","14年/14季度","北","企业总部、中央银行、地产帝国大厦、私人庄园","纽约、迪拜、苏黎世","可靠稳重慷慨的供养者，给人物质安全感","贪婪剥削，利用财富控制","成功企业家，商业帝国缔造者","贪婪浪费不诚实的商业","商业帝国缔造者，最富裕的一张牌","剥削浪费，因贪婪而亏","运势极度丰饶","运势因贪婪而被制裁"]);
+
+// ===== BUILD INDEX =====
+var cardMap = new Map();
+C.forEach(function(c){ cardMap.set(c[1], c); });
+
+// ===== DOM REFS =====
+var spreadArea = document.getElementById("spreadArea");
+var emptyHint = document.getElementById("emptyHint");
+var slotCount = 0;
+
+var spreadLabels = {
+  "3": ["过去","现在","未来"],
+  "4": ["火·行动","水·情感","风·思想","土·物质"],
+  "5": ["现状","挑战","过去","未来","上方·目标","下方·基础","建议","环境","希望/恐惧","结果"],
+  "7": ["周一","周二","周三","周四","周五","周六","周日"]
+};
+
+// ===== QUICK SPREAD =====
+function quickSpread(n){
+  clearAll(true);
+  if(!n) return;
+  var count = parseInt(n);
+  var labels = spreadLabels[n] || [];
+  for(var i=0;i<count;i++) addCardSlot(labels[i]||("位置"+(i+1)),true);
+  document.querySelector(".spread-select").value=n;
+}
+
+// ===== ADD CARD SLOT =====
+function addCardSlot(posLabel,fromSpread){
+  if(!fromSpread){document.querySelector(".spread-select").value="";}
+  slotCount++;
+  if(emptyHint) emptyHint.style.display="none";
+  var idx = slotCount;
+  var slot = document.createElement("div");
+  slot.className="card-slot";
+  slot.id="slot-"+idx;
+
+  var posVal = posLabel || "";
+  var html='<div class="slot-header">';
+  html+='<div class="slot-num">'+idx+'</div>';
+  html+='<div class="slot-pos"><input type="text" placeholder="牌阵位置（如：过去、现在、未来）" value="'+posVal+'" oninput="updateSlotState('+idx+')"></div>';
+  html+='<button class="btn-remove" onclick="removeSlot('+idx+')" title="移除">✕</button>';
+  html+='</div><div class="slot-body">';
+  html+='<div class="slot-row"><label>牌名</label><div class="custom-select" id="select-'+idx+'">';
+  html+='<input type="text" placeholder="🔍 搜索或选择牌名..." autocomplete="off" onfocus="showDropdown('+idx+')" oninput="filterDropdown('+idx+')" onblur="hideDropdownDelay('+idx+')">';
+  html+='<ul class="dropdown" id="dropdown-'+idx+'"></ul></div></div>';
+  html+='<div class="slot-row"><label>方位</label><div class="toggle-group">';
+  html+='<button class="toggle-btn active" onclick="setDirection('+idx+',this,\'up\')">正位 ▲</button>';
+  html+='<button class="toggle-btn" onclick="setDirection('+idx+',this,\'rev\')">逆位 ▼</button>';
+  html+='</div></div><div class="result-panel" id="result-'+idx+'"></div></div>';
+
+  slot.innerHTML=html;
+  spreadArea.appendChild(slot);
+  initDropdown(idx);
+  updateSlotState(idx);
+}
+
+// ===== DROPDOWN =====
+function initDropdown(idx){
+  var ul=document.getElementById("dropdown-"+idx);
+  var items="";
+  for(var i=0;i<C.length;i++){
+    var nm=C[i][1];
+    items+='<li data-val="'+nm.replace(/"/g,"&quot;")+'" onmousedown="selectCard('+idx+',this)">'+nm+'</li>';
+  }
+  ul.innerHTML=items;
+}
+
+function showDropdown(idx){
+  var ul=document.getElementById("dropdown-"+idx);
+  ul.classList.add("show");
+  filterDropdown(idx);
+}
+
+function hideDropdownDelay(idx){
+  setTimeout(function(){
+    var ul=document.getElementById("dropdown-"+idx);
+    if(ul) ul.classList.remove("show");
+  },200);
+}
+
+function filterDropdown(idx){
+  var input=document.querySelector("#select-"+idx+" input");
+  var ul=document.getElementById("dropdown-"+idx);
+  if(!input||!ul) return;
+  var q=input.value.toLowerCase();
+  ul.classList.add("show");
+  var lis=ul.querySelectorAll("li");
+  for(var i=0;i<lis.length;i++){
+    lis[i].style.display=lis[i].textContent.toLowerCase().indexOf(q)>=0?"":"none";
+  }
+}
+
+function selectCard(idx,li){
+  var input=document.querySelector("#select-"+idx+" input");
+  if(input) input.value=li.textContent;
+  var ul=document.getElementById("dropdown-"+idx);
+  if(ul) ul.classList.remove("show");
+  updateSlotState(idx);
+  var slot=document.getElementById("slot-"+idx);
+  if(slot) slot.classList.add("filled");
+}
+
+// ===== DIRECTION TOGGLE =====
+function setDirection(idx,btn,dir){
+  var slot=document.getElementById("slot-"+idx);
+  if(!slot) return;
+  var btns=slot.querySelectorAll(".toggle-btn");
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove("active");
+  btn.classList.add("active");
+  updateSlotState(idx);
+}
+
+function getDirection(idx){
+  var slot=document.getElementById("slot-"+idx);
+  if(!slot) return "up";
+  var btns=slot.querySelectorAll(".toggle-btn");
+  return btns[0].classList.contains("active")?"up":"rev";
+}
+
+function getCardName(idx){
+  var input=document.querySelector("#select-"+idx+" input");
+  return input?input.value.trim():"";
+}
+
+// ===== UPDATE RESULT PANEL =====
+function updateSlotState(idx){
+  var name=getCardName(idx);
+  var dir=getDirection(idx);
+  var isUp=dir==="up";
+  var card=cardMap.get(name);
+  var panel=document.getElementById("result-"+idx);
+  var slot=document.getElementById("slot-"+idx);
+  if(!card||!panel) return;
+
+  var love=isUp?card[10]:card[11];
+  var career=isUp?card[12]:card[13];
+  var wealth=isUp?card[14]:card[15];
+  var fortune=isUp?card[16]:card[17];
+  var dl=isUp?"正位":"逆位";
+
+  panel.innerHTML='<div class="result-section"><h5>💕 感情（'+dl+'）</h5><p>'+love+'</p></div>'+
+    '<div class="result-section"><h5>💼 事业（'+dl+'）</h5><p>'+career+'</p></div>'+
+    '<div class="result-section"><h5>💰 财富（'+dl+'）</h5><p>'+wealth+'</p></div>'+
+    '<div class="result-section"><h5>🔮 运势（'+dl+'）</h5><p>'+fortune+'</p></div>'+
+    '<div class="result-meta">'+
+    '<span class="meta-tag">♈ '+card[4]+'</span>'+
+    '<span class="meta-tag">'+card[5]+'</span>'+
+    '<span class="meta-tag">⏰ '+card[6]+'</span>'+
+    '<span class="meta-tag">🧭 '+card[7]+'</span>'+
+    '<span class="meta-tag">📍 '+card[8]+'</span>'+
+    '<span class="meta-tag">🏙️ '+card[9]+'</span></div>';
+  panel.classList.add("show");
+  if(slot) slot.classList.add("filled");
+}
+
+// ===== REMOVE / CLEAR =====
+function removeSlot(idx){
+  var slot=document.getElementById("slot-"+idx);
+  if(slot) slot.remove();
+  if(spreadArea.querySelectorAll(".card-slot").length===0&&emptyHint){
+    emptyHint.style.display="";
+  }
+}
+
+function clearAll(keepSpread){
+  var all=spreadArea.querySelectorAll(".card-slot");
+  for(var i=0;i<all.length;i++) all[i].remove();
+  if(emptyHint) emptyHint.style.display="";
+  slotCount=0;
+  if(!keepSpread){document.querySelector(".spread-select").value="";}
+}
+
+// ===== DATABASE MODAL =====
+var modalOverlay=document.getElementById("modalOverlay");
+var dbBody=document.getElementById("dbBody");
+var dbVisible=false;
+
+function buildDbTable(filter){
+  var q=(filter||"").toLowerCase();
+  var rows="";
+  for(var i=0;i<C.length;i++){
+    var c=C[i];
+    if(q){
+      var found=false;
+      for(var j=0;j<=17;j++){ if(c[j].toLowerCase().indexOf(q)>=0){found=true;break;} }
+      if(!found) continue;
+    }
+    rows+='<tr><td>'+c[0]+'</td><td class="card-name">'+c[1]+'</td><td>'+c[2]+'</td><td>'+c[3]+'</td><td>'+c[4]+'</td><td>'+c[5]+'</td><td>'+c[6]+'</td><td>'+c[7]+'</td><td style="max-width:160px">'+c[8]+'</td><td style="max-width:130px">'+c[9]+'</td><td style="max-width:180px">'+c[10]+'</td><td style="max-width:180px">'+c[11]+'</td><td style="max-width:180px">'+c[12]+'</td><td style="max-width:180px">'+c[13]+'</td><td style="max-width:180px">'+c[14]+'</td><td style="max-width:180px">'+c[15]+'</td><td style="max-width:160px">'+c[16]+'</td><td style="max-width:160px">'+c[17]+'</td></tr>';
+  }
+  dbBody.innerHTML=rows;
+}
+
+function toggleDatabase(){
+  dbVisible=!dbVisible;
+  if(dbVisible){
+    modalOverlay.classList.add("show");
+    document.getElementById("btnDb").classList.add("active");
+    buildDbTable(document.getElementById("dbSearch").value);
+  }else{
+    modalOverlay.classList.remove("show");
+    document.getElementById("btnDb").classList.remove("active");
+  }
+}
+
+function filterDatabase(){
+  buildDbTable(document.getElementById("dbSearch").value);
+}
+
+// ===== KEYBOARD =====
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){
+    if(dbVisible) toggleDatabase();
+    var all=document.querySelectorAll(".dropdown.show");
+    for(var i=0;i<all.length;i++) all[i].classList.remove("show");
+  }
+});
+
+// ===== INIT =====
+addCardSlot("整体运势",true);
+</script>
+</body>
+</html>
