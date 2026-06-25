@@ -160,7 +160,7 @@ body{font-family:"Segoe UI","Microsoft YaHei",serif;background:#0a0612;color:#d4
 <div class="footer">78张塔罗牌完整解读工具 · 韦特-金色黎明体系</div>
 
 <!-- DATABASE MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)toggleDatabase()">
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this||event.target===this.firstChild)toggleDatabase()">
   <div class="modal">
     <div class="modal-header">
       <h2>📚 七十八张卡牌完整数据库</h2>
@@ -327,11 +327,11 @@ function addCardSlot(posLabel,fromSpread){
   html+='<button class="btn-remove" onclick="removeSlot('+idx+')" title="移除">✕</button>';
   html+='</div><div class="slot-body">';
   html+='<div class="slot-row"><label>牌名</label><div class="custom-select" id="select-'+idx+'">';
-  html+='<input type="text" placeholder="🔍 搜索或选择牌名..." autocomplete="off" onfocus="showDropdown('+idx+')" oninput="filterDropdown('+idx+')" onblur="hideDropdownDelay('+idx+')">';
+  html+='<input type="text" placeholder="🔍 搜索或选择牌名..." autocomplete="off" onfocus="showDropdown('+idx+')" oninput="filterDropdown('+idx+')" >';
   html+='<ul class="dropdown" id="dropdown-'+idx+'"></ul></div></div>';
   html+='<div class="slot-row"><label>方位</label><div class="toggle-group">';
-  html+='<button class="toggle-btn active" onclick="setDirection('+idx+',this,\'up\')">正位 ▲</button>';
-  html+='<button class="toggle-btn" onclick="setDirection('+idx+',this,\'rev\')">逆位 ▼</button>';
+  html+='<button class="toggle-btn active" ontouchstart="" onclick="setDirection('+idx+',this,\'up\')">正位 ▲</button>';
+  html+='<button class="toggle-btn" ontouchstart="" onclick="setDirection('+idx+',this,\'rev\')">逆位 ▼</button>';
   html+='</div></div><div class="result-panel" id="result-'+idx+'"></div></div>';
 
   slot.innerHTML=html;
@@ -346,7 +346,7 @@ function initDropdown(idx){
   var items="";
   for(var i=0;i<C.length;i++){
     var nm=C[i][1];
-    items+='<li data-val="'+nm.replace(/"/g,"&quot;")+'" onmousedown="selectCard('+idx+',this)">'+nm+'</li>';
+    items+='<li data-val="'+nm.replace(/"/g,"&quot;")+'" onclick="selectCard('+idx+',this)">'+nm+'</li>';
   }
   ul.innerHTML=items;
 }
@@ -361,7 +361,7 @@ function hideDropdownDelay(idx){
   setTimeout(function(){
     var ul=document.getElementById("dropdown-"+idx);
     if(ul) ul.classList.remove("show");
-  },200);
+  },350);
 }
 
 function filterDropdown(idx){
@@ -503,6 +503,12 @@ document.addEventListener("keydown",function(e){
 
 // ===== INIT =====
 addCardSlot("整体运势",true);
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".custom-select")){
+    var all=document.querySelectorAll(".dropdown.show");
+    for(var i=0;i<all.length;i++) all[i].classList.remove("show");
+  }
+});
 </script>
 </body>
 </html>
